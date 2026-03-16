@@ -8,6 +8,7 @@ interface UseLeetCodeOptions {
   limit?: number;
   difficulty?: Difficulty | "";
   search?: string;
+  tags?: string[];
 }
 
 interface UseLeetCodeResult {
@@ -21,7 +22,7 @@ interface UseLeetCodeResult {
 }
 
 export function useLeetCode(options: UseLeetCodeOptions = {}): UseLeetCodeResult {
-  const { limit = 50, difficulty = "", search = "" } = options;
+  const { limit = 50, difficulty = "", search = "", tags = [] } = options;
   const [problems, setProblems] = useState<ProblemSummary[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -37,6 +38,7 @@ export function useLeetCode(options: UseLeetCodeOptions = {}): UseLeetCodeResult
         limit,
         difficulty,
         search,
+        tags,
       });
       setProblems(result.questions);
       setTotal(result.total);
@@ -45,7 +47,8 @@ export function useLeetCode(options: UseLeetCodeOptions = {}): UseLeetCodeResult
     } finally {
       setLoading(false);
     }
-  }, [page, limit, difficulty, search]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit, difficulty, search, tags.join(",")]);
 
   useEffect(() => {
     fetch();
@@ -54,7 +57,8 @@ export function useLeetCode(options: UseLeetCodeOptions = {}): UseLeetCodeResult
   // Reset page when filters change
   useEffect(() => {
     setPage(0);
-  }, [difficulty, search]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [difficulty, search, tags.join(",")]);
 
   return { problems, total, loading, error, page, setPage, refetch: fetch };
 }

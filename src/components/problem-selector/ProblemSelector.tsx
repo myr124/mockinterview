@@ -17,6 +17,7 @@ export function ProblemSelector() {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [difficulty, setDifficulty] = useState<Difficulty | "">("");
+  const [tags, setTags] = useState<string[]>([]);
   const [randomLoading, setRandomLoading] = useState(false);
   const [debouncedSearch] = useDebounce(search, 400);
 
@@ -24,6 +25,7 @@ export function ProblemSelector() {
     limit: PAGE_SIZE,
     difficulty,
     search: debouncedSearch,
+    tags,
   });
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -38,13 +40,13 @@ export function ProblemSelector() {
     try {
       // Pick a random offset within the filtered set, fetch just that one problem
       const randomSkip = Math.floor(Math.random() * total);
-      const result = await fetchProblems({ skip: randomSkip, limit: 1, difficulty });
+      const result = await fetchProblems({ skip: randomSkip, limit: 1, difficulty, tags });
       const pick = result.questions.find((q) => !q.isPaidOnly) ?? result.questions[0];
       if (pick) router.push(`/interview/${pick.titleSlug}`);
     } finally {
       setRandomLoading(false);
     }
-  }, [total, difficulty, router]);
+  }, [total, difficulty, tags, router]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -53,6 +55,8 @@ export function ProblemSelector() {
         onSearchChange={setSearch}
         difficulty={difficulty}
         onDifficultyChange={handleDifficultyChange}
+        tags={tags}
+        onTagsChange={setTags}
         onRandom={handleRandom}
         randomLoading={randomLoading}
       />

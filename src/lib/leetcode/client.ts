@@ -27,16 +27,18 @@ export interface FetchProblemsOptions {
   limit?: number;
   difficulty?: Difficulty | "";
   search?: string;
+  tags?: string[];
 }
 
 export async function fetchProblems(
   options: FetchProblemsOptions = {}
 ): Promise<{ total: number; questions: ProblemSummary[] }> {
-  const { skip = 0, limit = 50, difficulty = "", search = "" } = options;
+  const { skip = 0, limit = 50, difficulty = "", search = "", tags = [] } = options;
 
   const filters: Record<string, unknown> = {};
   if (difficulty) filters.difficulty = difficulty.toUpperCase();
   if (search) filters.searchKeywords = search;
+  if (tags.length) filters.tags = tags;
 
   const data = await leetcodeGQL<{
     data: { problemsetQuestionList: { total: number; questions: ProblemSummary[] } };
